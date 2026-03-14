@@ -1,51 +1,50 @@
 -- bomb chips hack by bratyxanone90bb
-local L = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local W = L.CreateLib("BOMBA CHIPS TOTAL HACK - BRATYXA", "BloodTheme")
-local M = W:NewTab("Main"):NewSection("Bratyxa Ultra")
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("BOMBA CHIPS BY BRATYXANONE90BB", "BloodTheme")
 
-M:NewSlider("MEGA SPEED", "", 1000, 16, function(s)
+local Main = Window:NewTab("Main")
+local Section = Main:NewSection("Ультра Зрение")
+
+-- СКОРОСТЬ (сделал еще быстрее)
+Section:NewSlider("MEGA SPEED", "Летай по столам", 1000, 16, function(s)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
 end)
 
--- СКАНЕР ВСЕХ БОМБ НА КАРТЕ
-M:NewButton("ESP: ПОДСВЕТИТЬ ВСЕ БОМБЫ", "Видеть всё у всех", function()
-    -- Чистим старые хайлайты
-    for _, old in pairs(game.CoreGui:GetChildren()) do
-        if old.Name == "BratyxaESP" then old:Destroy() end
-    end
-
+-- ЖЕСТКИЙ ESP (ВИДИТ ВСЁ)
+Section:NewButton("ESP: ВКЛЮЧИТЬ РЕНТГЕН", "Подсветит всё внутри чипсов", function()
+    -- Сканируем всё дерево объектов
     for _, v in pairs(workspace:GetDescendants()) do
-        -- Ищем по ключевым признакам: имя "Bomb", черный цвет или меш бомбы
-        if v:IsA("BasePart") and (v.Name:lower():find("bomb") or v.Color == Color3.new(0,0,0) or v:FindFirstChild("Mesh")) then
-            -- Проверяем, что это не пол или стена (фильтр по размеру)
-            if v.Size.X < 5 and v.Size.Z < 5 then
-                local h = Instance.new("Highlight")
-                h.Name = "BratyxaESP"
-                h.Parent = v.Parent -- Подсвечиваем весь чипс, где бомба
-                h.FillColor = Color3.fromRGB(255, 0, 0)
-                h.FillTransparency = 0.5
-                h.OutlineColor = Color3.fromRGB(255, 255, 255)
+        -- Если объект внутри чипса или имеет подозрительное имя
+        if v:IsA("BasePart") and not v.Parent:IsA("Accessory") and not v.Parent:IsA("Model") == game.Players.LocalPlayer.Name then
+            if v.Name:lower():find("bomb") or v.Name:lower():find("бомб") or v.Name == "Handle" then
+                -- Создаем подсветку, которую видно сквозь стены
+                local Highlight = Instance.new("Highlight")
+                Highlight.Parent = v.Parent
+                Highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Красный для бомбы
+                Highlight.FillTransparency = 0.2
+                Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                Highlight.AlwaysOnTop = true
             end
         end
     end
 end)
 
--- АВТО-СБОР (ПРОБУЕМ НА ВСЕХ СТОЛАХ)
-M:NewToggle("AUTO-CLICK ALL TABLES", "Ест всё подряд", function(state)
-    _G.Farm = state
-    while _G.Farm do
-        task.wait(0.05)
-        pcall(function()
-            for _, v in pairs(workspace:GetDescendants()) do
-                if v:IsA("ClickDetector") or v:IsA("TouchTransmitter") then
-                    if v.Parent.Name:lower():find("chip") or v.Parent.Name:lower():find("чип") then
-                        -- Дистанционный клик
-                        fireclickdetector(v)
-                    end
-                end
+-- АВТО-КЛИК (УПРОЩЕННЫЙ)
+Section:NewToggle("AUTO-CLICK", "Нажимает на всё рядом", function(state)
+    _G.Auto = state
+    while _G.Auto do
+        task.wait(0.1)
+        for _, d in pairs(workspace:GetDescendants()) do
+            if d:IsA("ClickDetector") then
+                fireclickdetector(d)
             end
-        end)
+        end
     end
 end)
 
-W:NewTab("Settings"):NewSection("Keys"):NewKeybind("Menu Toggle", "INSERT", Enum.KeyCode.Insert, function() L:ToggleUI() end)
+local Settings = Window:NewTab("Settings")
+Settings:NewSection("Keys"):NewKeybind("Menu (INSERT)", "Скрыть/Показать", Enum.KeyCode.Insert, function()
+    Library:ToggleUI()
+end)
+
+print("--- [Bratyxanone90bb Hack V4] Loaded! ---")
