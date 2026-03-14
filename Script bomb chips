@@ -1,0 +1,34 @@
+-- bomb chips hack by bratyxanone90bb
+local L = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local W = L.CreateLib("BOMBA CHIPS HACK BY BRATYXANONE90BB", "BloodTheme")
+local M = W:NewTab("Main"):NewSection("Bratyxa Ultra")
+
+M:NewSlider("MEGA SPEED", "", 1000, 16, function(s) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s end)
+
+M:NewButton("ESP: Найти Бомбу", "Подсвечивает опасные чипсы", function()
+    pcall(function()
+        for _, v in pairs(workspace:GetDescendants()) do
+            if v.Name:lower():find("bomb") or v.Name:lower():find("бомба") then
+                local h = Instance.new("Highlight", v.Parent)
+                h.FillColor = Color3.fromRGB(255, 0, 0)
+            end
+        end
+    end)
+end)
+
+M:NewToggle("Auto-Farm", "Автоматический выбор чипсов", function(state)
+    _G.Farm = state
+    while _G.Farm do
+        task.wait(0.1)
+        pcall(function()
+            -- Кликает по всем чипсам на столе автоматически
+            for _, v in pairs(workspace:GetChildren()) do
+                if v:IsA("Model") and (v.Name:find("Chip") or v.Name:find("Чип")) then
+                    fireclickdetector(v:FindFirstChildOfClass("ClickDetector"))
+                end
+            end
+        end)
+    end
+end)
+
+W:NewTab("Settings"):NewSection("Keys"):NewKeybind("Toggle Menu", "", Enum.KeyCode.Insert, function() L:ToggleUI() end)
