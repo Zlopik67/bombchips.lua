@@ -1,34 +1,52 @@
 -- bomb chips hack by bratyxanone90bb
-local L = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local W = L.CreateLib("BOMBA CHIPS HACK BY BRATYXANONE90BB", "BloodTheme")
-local M = W:NewTab("Main"):NewSection("Bratyxa Ultra")
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local Window = Library.CreateLib("BOMBA CHIPS BY BRATYXANONE90BB", "BloodTheme")
 
-M:NewSlider("MEGA SPEED", "", 1000, 16, function(s) game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s end)
+local Main = Window:NewTab("Main")
+local Section = Main:NewSection("Bratyxa Ultra")
 
-M:NewButton("ESP: Найти Бомбу", "Подсвечивает опасные чипсы", function()
-    pcall(function()
-        for _, v in pairs(workspace:GetDescendants()) do
-            if v.Name:lower():find("bomb") or v.Name:lower():find("бомба") then
-                local h = Instance.new("Highlight", v.Parent)
-                h.FillColor = Color3.fromRGB(255, 0, 0)
-            end
-        end
-    end)
+-- СКОРОСТЬ
+Section:NewSlider("MEGA SPEED", "", 1000, 16, function(s)
+    game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
 end)
 
-M:NewToggle("Auto-Farm", "Автоматический выбор чипсов", function(state)
-    _G.Farm = state
-    while _G.Farm do
-        task.wait(0.1)
-        pcall(function()
-            -- Кликает по всем чипсам на столе автоматически
-            for _, v in pairs(workspace:GetChildren()) do
-                if v:IsA("Model") and (v.Name:find("Chip") or v.Name:find("Чип")) then
-                    fireclickdetector(v:FindFirstChildOfClass("ClickDetector"))
-                end
-            end
-        end)
+-- УЛУЧШЕННЫЙ ПОИСК БОМБЫ
+Section:NewButton("ESP: НАЙТИ БОМБУ (V2)", "Ищет скрытые объекты", function()
+    for _, v in pairs(workspace:GetDescendants()) do
+        -- Проверка на название или на черный цвет (часто бомбы черные)
+        if v:IsA("BasePart") and (v.Name:lower():find("bomb") or v.Name:lower():find("бомб") or v.Color == Color3.new(0,0,0)) then
+            local h = Instance.new("Highlight")
+            h.Parent = v.Parent
+            h.FillColor = Color3.fromRGB(255, 0, 0)
+            h.OutlineColor = Color3.fromRGB(255, 255, 255)
+        end
     end
 end)
 
-W:NewTab("Settings"):NewSection("Keys"):NewKeybind("Toggle Menu", "", Enum.KeyCode.Insert, function() L:ToggleUI() end)
+-- АВТО-КЛИК ПО ЧИПСАМ
+Section:NewToggle("AUTO-CLICK CHIPS", "Сам ест чипсы", function(state)
+    _G.AutoClick = state
+    while _G.AutoClick do
+        task.wait(0.1)
+        for _, chip in pairs(workspace:GetDescendants()) do
+            if chip:IsA("ClickDetector") or chip:IsA("TouchTransmitter") then
+                -- Если это чипс (проверка по родителю)
+                if chip.Parent.Name:lower():find("chip") or chip.Parent.Name:lower():find("чип") then
+                    fireclickdetector(chip)
+                    -- Если это тач-зона, просто телепортируемся на секунду
+                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chip.Parent, 0)
+                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chip.Parent, 1)
+                end
+            end
+        end
+    end
+end)
+
+-- НАСТРОЙКИ
+local Settings = Window:NewTab("Settings")
+local SetSection = Settings:NewSection("Keys")
+SetSection:NewKeybind("Toggle Menu", "INSERT", Enum.KeyCode.Insert, function()
+    Library:ToggleUI()
+end)
+
+print("--- [bomb chips hack by bratyxanone90bb] LOADED ---")
