@@ -1,52 +1,51 @@
 -- bomb chips hack by bratyxanone90bb
-local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
-local Window = Library.CreateLib("BOMBA CHIPS BY BRATYXANONE90BB", "BloodTheme")
+local L = loadstring(game:HttpGet("https://raw.githubusercontent.com/xHeptc/Kavo-UI-Library/main/source.lua"))()
+local W = L.CreateLib("BOMBA CHIPS TOTAL HACK - BRATYXA", "BloodTheme")
+local M = W:NewTab("Main"):NewSection("Bratyxa Ultra")
 
-local Main = Window:NewTab("Main")
-local Section = Main:NewSection("Bratyxa Ultra")
-
--- СКОРОСТЬ
-Section:NewSlider("MEGA SPEED", "", 1000, 16, function(s)
+M:NewSlider("MEGA SPEED", "", 1000, 16, function(s)
     game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s
 end)
 
--- УЛУЧШЕННЫЙ ПОИСК БОМБЫ
-Section:NewButton("ESP: НАЙТИ БОМБУ (V2)", "Ищет скрытые объекты", function()
-    for _, v in pairs(workspace:GetDescendants()) do
-        -- Проверка на название или на черный цвет (часто бомбы черные)
-        if v:IsA("BasePart") and (v.Name:lower():find("bomb") or v.Name:lower():find("бомб") or v.Color == Color3.new(0,0,0)) then
-            local h = Instance.new("Highlight")
-            h.Parent = v.Parent
-            h.FillColor = Color3.fromRGB(255, 0, 0)
-            h.OutlineColor = Color3.fromRGB(255, 255, 255)
-        end
+-- СКАНЕР ВСЕХ БОМБ НА КАРТЕ
+M:NewButton("ESP: ПОДСВЕТИТЬ ВСЕ БОМБЫ", "Видеть всё у всех", function()
+    -- Чистим старые хайлайты
+    for _, old in pairs(game.CoreGui:GetChildren()) do
+        if old.Name == "BratyxaESP" then old:Destroy() end
     end
-end)
 
--- АВТО-КЛИК ПО ЧИПСАМ
-Section:NewToggle("AUTO-CLICK CHIPS", "Сам ест чипсы", function(state)
-    _G.AutoClick = state
-    while _G.AutoClick do
-        task.wait(0.1)
-        for _, chip in pairs(workspace:GetDescendants()) do
-            if chip:IsA("ClickDetector") or chip:IsA("TouchTransmitter") then
-                -- Если это чипс (проверка по родителю)
-                if chip.Parent.Name:lower():find("chip") or chip.Parent.Name:lower():find("чип") then
-                    fireclickdetector(chip)
-                    -- Если это тач-зона, просто телепортируемся на секунду
-                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chip.Parent, 0)
-                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, chip.Parent, 1)
-                end
+    for _, v in pairs(workspace:GetDescendants()) do
+        -- Ищем по ключевым признакам: имя "Bomb", черный цвет или меш бомбы
+        if v:IsA("BasePart") and (v.Name:lower():find("bomb") or v.Color == Color3.new(0,0,0) or v:FindFirstChild("Mesh")) then
+            -- Проверяем, что это не пол или стена (фильтр по размеру)
+            if v.Size.X < 5 and v.Size.Z < 5 then
+                local h = Instance.new("Highlight")
+                h.Name = "BratyxaESP"
+                h.Parent = v.Parent -- Подсвечиваем весь чипс, где бомба
+                h.FillColor = Color3.fromRGB(255, 0, 0)
+                h.FillTransparency = 0.5
+                h.OutlineColor = Color3.fromRGB(255, 255, 255)
             end
         end
     end
 end)
 
--- НАСТРОЙКИ
-local Settings = Window:NewTab("Settings")
-local SetSection = Settings:NewSection("Keys")
-SetSection:NewKeybind("Toggle Menu", "INSERT", Enum.KeyCode.Insert, function()
-    Library:ToggleUI()
+-- АВТО-СБОР (ПРОБУЕМ НА ВСЕХ СТОЛАХ)
+M:NewToggle("AUTO-CLICK ALL TABLES", "Ест всё подряд", function(state)
+    _G.Farm = state
+    while _G.Farm do
+        task.wait(0.05)
+        pcall(function()
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v:IsA("ClickDetector") or v:IsA("TouchTransmitter") then
+                    if v.Parent.Name:lower():find("chip") or v.Parent.Name:lower():find("чип") then
+                        -- Дистанционный клик
+                        fireclickdetector(v)
+                    end
+                end
+            end
+        end)
+    end
 end)
 
-print("--- [bomb chips hack by bratyxanone90bb] LOADED ---")
+W:NewTab("Settings"):NewSection("Keys"):NewKeybind("Menu Toggle", "INSERT", Enum.KeyCode.Insert, function() L:ToggleUI() end)
